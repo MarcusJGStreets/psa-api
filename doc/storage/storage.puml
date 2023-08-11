@@ -1,0 +1,17 @@
+' SPDX-FileCopyrightText: Copyright 2018-2019, 2022 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+!include atg-spec.pumh
+
+participant "Application" as app
+box "Platform Root of Trust" #E0E0E0
+   participant "Cryptography\nservice" as crypto
+   participant "Internal Trusted\nStorage service" as trusted_storage
+end box
+
+app -> crypto: ""psa_import_key(key_slot, key_material)""
+crypto -> trusted_storage : ""psa_its_set(partition_id<<32 | key_identifier, key_material)""
+crypto <-- trusted_storage : pass/fail
+app <-- crypto : pass/fail
+@enduml
