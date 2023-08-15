@@ -30,7 +30,7 @@ doc_info = {
     'issue_no': 3,
     # Identifies the sequence number of a release candidate of the same issue
     # default to None
-    'release_candidate': 1,
+    'release_candidate': 2,
     # Draft status - use this to indicate the document is not ready for publication
     # 'draft': True,
 
