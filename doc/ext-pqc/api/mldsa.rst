@@ -203,10 +203,11 @@ A HashML-DSA signature can only be verified with a HashML-DSA algorithm.
 
 .. rubric:: Contexts
 
-Contexts are not supported in the current version of this specification because there is no suitable signature interface that can take the context as a parameter.
-A empty context string is used when computing or verifying ML-DSA signatures.
+From release 1.3.1 this specification includes functions that take non-empty contexts. 
 
-A future version of this specification may add suitable functions and extend this algorithm to support contexts.
+The default signature functions use an empty context string when computing or verifying ML-DSA signatures.
+To use a non-default context, you must use the `with_context()` functions. 
+
 
 .. macro:: PSA_ALG_ML_DSA
     :definition: ((psa_algorithm_t) 0x06004400)
