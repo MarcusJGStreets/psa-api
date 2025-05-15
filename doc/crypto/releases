@@ -76,3 +76,9 @@
     New API for key encapsulation.
 
     Support for additional key generation parameters.
+
+.. release:: 1.3.1 Beta 
+    :date: May 2025
+    :confidentiality: Non-confidential
+
+    Added new functions for signatures with context. 
