@@ -465,15 +465,12 @@ EdDSA signature algorithms
 
     *   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.1.6`.
 
-    *   Edwards448: the Ed448 algorithm is computed with an empty string as the context. The output signature is a 114-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.2.6`.
+    *   Edwards448: Unless you use the `_with_context` functions, the Ed448 algorithm is computed with an empty string as the context. The output signature is a 114-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.2.6`.
 
     .. note::
         To sign or verify the pre-computed hash of a message using EdDSA, the HashEdDSA algorithms (`PSA_ALG_ED25519PH` and `PSA_ALG_ED448PH`) can be used.
 
         The signature produced by HashEdDSA is distinct from that produced by PureEdDSA.
-
-    .. note::
-        Contexts are not supported in the current version of this specification because there is no suitable signature interface that can take the context as a parameter. A future version of this specification may add suitable functions and extend this algorithm to support contexts.
 
     .. subsection:: Compatible key types
 
@@ -490,7 +487,7 @@ EdDSA signature algorithms
 
     This hash-and-sign signature algorithm can be used with both the message and hash signature functions.
 
-    This calculates the Ed25519ph algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 curve key. An empty string is used as the context. The pre-hash function is SHA-512, see `PSA_ALG_SHA_512`.
+    This calculates the Ed25519ph algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 curve key. Unless you use the `_with_context` functions, an empty string is used as the context. The pre-hash function is SHA-512, see `PSA_ALG_SHA_512`.
 
     When used with `psa_sign_hash()` or `psa_verify_hash()`, the provided ``hash`` parameter is the SHA-512 message digest.
 
@@ -523,7 +520,7 @@ EdDSA signature algorithms
 
     This hash-and-sign signature algorithm can be used with both the message and hash signature functions.
 
-    This calculates the Ed448ph algorithm as specified in :RFC-title:`8032#5.2`, and requires an Edwards448 curve key. An empty string is used as the context. The pre-hash function is the first 64 bytes of the output from SHAKE256, see `PSA_ALG_SHAKE256_512`.
+    This calculates the Ed448ph algorithm as specified in :RFC-title:`8032#5.2`, and requires an Edwards448 curve key. Unless you use the `_with_context` functions, an empty string is used as the context. The pre-hash function is the first 64 bytes of the output from SHAKE256, see `PSA_ALG_SHAKE256_512`.
 
     When used with `psa_sign_hash()` or `psa_verify_hash()`, the provided ``hash`` parameter is the truncated SHAKE256 message digest.
 
@@ -629,6 +626,72 @@ Asymmetric signature functions
     ..  note::
         To perform a multi-part hash-and-sign signature algorithm, first use a :ref:`multi-part hash operation <hash-mp>` and then pass the resulting hash to `psa_sign_hash()`. :code:`PSA_ALG_GET_HASH(alg)` can be used to determine the hash algorithm to use.
 
+.. function:: psa_sign_message_with_context
+
+    .. summary::
+        Sign a message with a private key using a non-default context. For hash-and-sign algorithms, this includes the hashing step.
+
+    .. param:: psa_key_id_t key
+        Identifier of the key to use for the operation. It must be an asymmetric key pair. The key must permit the usage `PSA_KEY_USAGE_SIGN_MESSAGE`.
+    .. param:: psa_algorithm_t alg
+        An asymmetric signature algorithm: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_SIGN_MESSAGE(alg)` is true.
+    .. param:: const uint8_t * input
+        The input message to sign.
+    .. param:: size_t input_length
+        Size of the ``input`` buffer in bytes.
+    .. param:: const uint8_t * context
+        The context to use for this signature.
+    .. param:: size_t context_length
+        Size of the ``context`` buffer in bytes.
+    .. param:: uint8_t * signature
+        Buffer where the signature is to be written.
+    .. param:: size_t signature_size
+        Size of the ``signature`` buffer in bytes.
+        This must be appropriate for the selected algorithm and key:
+
+        *   The required signature size is :code:`PSA_SIGN_OUTPUT_SIZE(key_type, key_bits, alg)` where ``key_type`` and ``key_bits`` are the type and bit-size respectively of ``key``.
+        *   `PSA_SIGNATURE_MAX_SIZE` evaluates to the maximum signature size of any supported signature algorithm.
+
+    .. param:: size_t * signature_length
+        On success, the number of bytes that make up the returned signature value.
+
+    .. return:: psa_status_t
+    .. retval:: PSA_SUCCESS
+        Success.
+        The first ``(*signature_length)`` bytes of ``signature`` contain the signature value.
+    .. retval:: PSA_ERROR_INVALID_HANDLE
+        ``key`` is not a valid key identifier.
+    .. retval:: PSA_ERROR_NOT_PERMITTED
+        The key does not have the `PSA_KEY_USAGE_SIGN_MESSAGE` flag, or it does not permit the requested algorithm.
+    .. retval:: PSA_ERROR_BUFFER_TOO_SMALL
+        The size of the ``signature`` buffer is too small.
+        `PSA_SIGN_OUTPUT_SIZE()` or `PSA_SIGNATURE_MAX_SIZE` can be used to determine a sufficient buffer size.
+    .. retval:: PSA_ERROR_NOT_SUPPORTED
+        The following conditions can result in this error:
+
+        *   ``alg`` is not supported, or is not an asymmetric signature algorithm that permits signing a message.
+        *   ``key`` is not supported for use with ``alg``.
+        *   ``input_length`` is too large for the implementation.
+    .. retval:: PSA_ERROR_INVALID_ARGUMENT
+        The following conditions can result in this error:
+
+        *   ``alg`` is not an asymmetric signature algorithm that permits signing a message with a context string.
+        *   ``key`` is not an asymmetric key pair, that is compatible with ``alg``.
+        *   ``input_length`` is too large for the algorithm and key type.
+    .. retval:: PSA_ERROR_INSUFFICIENT_MEMORY
+    .. retval:: PSA_ERROR_COMMUNICATION_FAILURE
+    .. retval:: PSA_ERROR_CORRUPTION_DETECTED
+    .. retval:: PSA_ERROR_STORAGE_FAILURE
+    .. retval:: PSA_ERROR_DATA_CORRUPT
+    .. retval:: PSA_ERROR_DATA_INVALID
+    .. retval:: PSA_ERROR_INSUFFICIENT_ENTROPY
+    .. retval:: PSA_ERROR_BAD_STATE
+        The library requires initializing by a call to `psa_crypto_init()`.
+
+    ..  note::
+        To perform a multi-part hash-and-sign signature algorithm, first use a :ref:`multi-part hash operation <hash-mp>` and then pass the resulting hash to `psa_sign_hash()`. :code:`PSA_ALG_GET_HASH(alg)` can be used to determine the hash algorithm to use.
+
+
 .. function:: psa_verify_message
 
     .. summary::
@@ -680,6 +743,65 @@ Asymmetric signature functions
 
     ..  note::
         To perform a multi-part hash-and-sign signature verification algorithm, first use a :ref:`multi-part hash operation <hash-mp>` to hash the message and then pass the resulting hash to `psa_verify_hash()`. :code:`PSA_ALG_GET_HASH(alg)` can be used to determine the hash algorithm to use.
+
+
+.. function:: psa_verify_message_with_context
+
+    .. summary::
+        Verify the signature of a message with a public key and a non-default context. For hash-and-sign algorithms, this includes the hashing step.
+
+    .. param:: psa_key_id_t key
+        Identifier of the key to use for the operation. It must be a public key or an asymmetric key pair. The key must permit the usage `PSA_KEY_USAGE_VERIFY_MESSAGE`.
+    .. param:: psa_algorithm_t alg
+        An asymmetric signature algorithm: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_SIGN_MESSAGE(alg)` is true.
+    .. param:: const uint8_t * input
+        The message whose signature is to be verified.
+    .. param:: size_t input_length
+        Size of the ``input`` buffer in bytes.
+    .. param:: const uint8_t * context
+        The context to use for this signature.
+    .. param:: size_t context_length
+        Size of the ``context`` buffer in bytes.
+    .. param:: const uint8_t * signature
+        Buffer containing the signature to verify.
+    .. param:: size_t signature_length
+        Size of the ``signature`` buffer in bytes.
+
+    .. return:: psa_status_t
+    .. retval:: PSA_SUCCESS
+        Success.
+        The signature is valid.
+    .. retval:: PSA_ERROR_INVALID_HANDLE
+        ``key`` is not a valid key identifier.
+    .. retval:: PSA_ERROR_NOT_PERMITTED
+        The key does not have the `PSA_KEY_USAGE_VERIFY_MESSAGE` flag, or it does not permit the requested algorithm.
+    .. retval:: PSA_ERROR_INVALID_SIGNATURE
+        ``signature`` is not the result of signing the ``input`` message with algorithm ``alg`` using the private key corresponding to ``key``.
+    .. retval:: PSA_ERROR_NOT_SUPPORTED
+        The following conditions can result in this error:
+
+        *   ``alg`` is not supported, or is not an asymmetric signature algorithm that permits verifying a message.
+        *   ``key`` is not supported for use with ``alg``.
+        *   ``input_length`` is too large for the implementation.
+    .. retval:: PSA_ERROR_INVALID_ARGUMENT
+        The following conditions can result in this error:
+
+        *   ``alg`` is not an asymmetric signature algorithm that permits verifying a message with a context string.
+        *   ``key`` is not a public key or an asymmetric key pair, that is compatible with ``alg``.
+        *   ``input_length`` is too large for the algorithm and key type.
+    .. retval:: PSA_ERROR_INSUFFICIENT_MEMORY
+    .. retval:: PSA_ERROR_COMMUNICATION_FAILURE
+    .. retval:: PSA_ERROR_CORRUPTION_DETECTED
+    .. retval:: PSA_ERROR_STORAGE_FAILURE
+    .. retval:: PSA_ERROR_DATA_CORRUPT
+    .. retval:: PSA_ERROR_DATA_INVALID
+    .. retval:: PSA_ERROR_BAD_STATE
+        The library requires initializing by a call to `psa_crypto_init()`.
+
+    ..  note::
+        To perform a multi-part hash-and-sign signature verification algorithm, first use a :ref:`multi-part hash operation <hash-mp>` to hash the message and then pass the resulting hash to `psa_verify_hash()`. :code:`PSA_ALG_GET_HASH(alg)` can be used to determine the hash algorithm to use.
+
+
 
 .. function:: psa_sign_hash
 
@@ -745,6 +867,75 @@ Asymmetric signature functions
 
     Specialized signature algorithms can apply a padding or encoding to the hash. In such cases, the encoded hash must be passed to this function. For example, see `PSA_ALG_RSA_PKCS1V15_SIGN_RAW`.
 
+.. function:: psa_sign_hash_with_context
+
+    .. summary::
+        Sign a pre-computed hash with a private key.
+
+    .. param:: psa_key_id_t key
+        Identifier of the key to use for the operation. It must be an asymmetric key pair. The key must permit the usage `PSA_KEY_USAGE_SIGN_HASH`.
+    .. param:: psa_algorithm_t alg
+        An asymmetric signature algorithm that separates the hash and sign operations: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_SIGN_HASH(alg)` is true.
+    .. param:: const uint8_t * hash
+        The input to sign. This is usually the hash of a message.
+
+        See the description of this function, or the description of individual signature algorithms, for details of the acceptable inputs.
+    .. param:: size_t hash_length
+        Size of the ``hash`` buffer in bytes.
+    .. param:: const uint8_t * context
+        The context to use for this signature.
+    .. param:: size_t context_length
+        Size of the ``context`` buffer in bytes.
+    .. param:: uint8_t * signature
+        Buffer where the signature is to be written.
+    .. param:: size_t signature_size
+        Size of the ``signature`` buffer in bytes.
+        This must be appropriate for the selected algorithm and key:
+
+        *   The required signature size is :code:`PSA_SIGN_OUTPUT_SIZE(key_type, key_bits, alg)` where ``key_type`` and ``key_bits`` are the type and bit-size respectively of ``key``.
+        *   `PSA_SIGNATURE_MAX_SIZE` evaluates to the maximum signature size of any supported signature algorithm.
+
+    .. param:: size_t * signature_length
+        On success, the number of bytes that make up the returned signature value.
+
+    .. return:: psa_status_t
+    .. retval:: PSA_SUCCESS
+        Success.
+        The first ``(*signature_length)`` bytes of ``signature`` contain the signature value.
+    .. retval:: PSA_ERROR_INVALID_HANDLE
+        ``key`` is not a valid key identifier.
+    .. retval:: PSA_ERROR_NOT_PERMITTED
+        The key does not have the `PSA_KEY_USAGE_SIGN_HASH` flag, or it does not permit the requested algorithm.
+    .. retval:: PSA_ERROR_BUFFER_TOO_SMALL
+        The size of the ``signature`` buffer is too small.
+        `PSA_SIGN_OUTPUT_SIZE()` or `PSA_SIGNATURE_MAX_SIZE` can be used to determine a sufficient buffer size.
+    .. retval:: PSA_ERROR_NOT_SUPPORTED
+        The following conditions can result in this error:
+
+        *   ``alg`` is not supported, or is not an asymmetric signature algorithm that permits signing a pre-computed hash.
+        *   ``key`` is not supported for use with ``alg``.
+    .. retval:: PSA_ERROR_INVALID_ARGUMENT
+        The following conditions can result in this error:
+
+        *   ``alg`` is not an asymmetric signature algorithm that permits signing a pre-computed hash with a context.
+        *   ``key`` is not an asymmetric key pair, that is compatible with ``alg``.
+        *   ``hash_length`` is not valid for the algorithm and key type.
+        *   ``hash`` is not a valid input value for the algorithm and key type.
+    .. retval:: PSA_ERROR_INSUFFICIENT_MEMORY
+    .. retval:: PSA_ERROR_COMMUNICATION_FAILURE
+    .. retval:: PSA_ERROR_CORRUPTION_DETECTED
+    .. retval:: PSA_ERROR_STORAGE_FAILURE
+    .. retval:: PSA_ERROR_DATA_CORRUPT
+    .. retval:: PSA_ERROR_DATA_INVALID
+    .. retval:: PSA_ERROR_INSUFFICIENT_ENTROPY
+    .. retval:: PSA_ERROR_BAD_STATE
+        The library requires initializing by a call to `psa_crypto_init()`.
+
+    For hash-and-sign signature algorithms, the ``hash`` input to this function is the hash of the message to sign. The algorithm used to calculate this hash is encoded in the signature algorithm. For such algorithms, ``hash_length`` must equal the length of the hash output: :code:`hash_length == PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg))`.
+
+    Specialized signature algorithms can apply a padding or encoding to the hash. In such cases, the encoded hash must be passed to this function. For example, see `PSA_ALG_RSA_PKCS1V15_SIGN_RAW`.
+
+
 .. function:: psa_verify_hash
 
     .. summary::
@@ -784,6 +975,66 @@ Asymmetric signature functions
         The following conditions can result in this error:
 
         *   ``alg`` is not an asymmetric signature algorithm that permits verifying a pre-computed hash.
+        *   ``key`` is not a public key or an asymmetric key pair, that is compatible with ``alg``.
+        *   ``hash_length`` is not valid for the algorithm and key type.
+        *   ``hash`` is not a valid input value for the algorithm and key type.
+    .. retval:: PSA_ERROR_INSUFFICIENT_MEMORY
+    .. retval:: PSA_ERROR_COMMUNICATION_FAILURE
+    .. retval:: PSA_ERROR_CORRUPTION_DETECTED
+    .. retval:: PSA_ERROR_STORAGE_FAILURE
+    .. retval:: PSA_ERROR_DATA_CORRUPT
+    .. retval:: PSA_ERROR_DATA_INVALID
+    .. retval:: PSA_ERROR_BAD_STATE
+        The library requires initializing by a call to `psa_crypto_init()`.
+
+    For hash-and-sign signature algorithms, the ``hash`` input to this function is the hash of the message to verify. The algorithm used to calculate this hash is encoded in the signature algorithm. For such algorithms, ``hash_length`` must equal the length of the hash output: :code:`hash_length == PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg))`.
+
+    Specialized signature algorithms can apply a padding or encoding to the hash. In such cases, the encoded hash must be passed to this function. For example, see `PSA_ALG_RSA_PKCS1V15_SIGN_RAW`.
+
+
+.. function:: psa_verify_hash_with_context
+
+    .. summary::
+        Verify the signature of a hash or short message using a public key.
+
+    .. param:: psa_key_id_t key
+        Identifier of the key to use for the operation. It must be a public key or an asymmetric key pair. The key must permit the usage `PSA_KEY_USAGE_VERIFY_HASH`.
+    .. param:: psa_algorithm_t alg
+        An asymmetric signature algorithm that separates the hash and sign operations: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_SIGN_HASH(alg)` is true.
+    .. param:: const uint8_t * hash
+        The input whose signature is to be verified. This is usually the hash of a message.
+
+        See the description of this function, or the description of individual signature algorithms, for details of the acceptable inputs.
+    .. param:: size_t hash_length
+        Size of the ``hash`` buffer in bytes.
+    .. param:: const uint8_t * context
+        The context to use for this signature.
+    .. param:: size_t context_length
+        Size of the ``context`` buffer in bytes.
+    .. param:: const uint8_t * signature
+        Buffer containing the signature to verify.
+    .. param:: size_t signature_length
+        Size of the ``signature`` buffer in bytes.
+
+    .. return:: psa_status_t
+    .. retval:: PSA_SUCCESS
+        Success.
+        The signature is valid.
+    .. retval:: PSA_ERROR_INVALID_HANDLE
+        ``key`` is not a valid key identifier.
+    .. retval:: PSA_ERROR_NOT_PERMITTED
+        The key does not have the `PSA_KEY_USAGE_VERIFY_HASH` flag, or it does not permit the requested algorithm.
+    .. retval:: PSA_ERROR_INVALID_SIGNATURE
+        ``signature`` is not the result of signing ``hash`` with algorithm ``alg`` using the private key corresponding to ``key``.
+    .. retval:: PSA_ERROR_NOT_SUPPORTED
+        The following conditions can result in this error:
+
+        *   ``alg`` is not supported, or is not an asymmetric signature algorithm that permits verifying a pre-computed hash.
+        *   ``key`` is not supported for use with ``alg``.
+    .. retval:: PSA_ERROR_INVALID_ARGUMENT
+        The following conditions can result in this error:
+
+        *   ``alg`` is not an asymmetric signature algorithm that permits verifying a pre-computed hash with a context.
         *   ``key`` is not a public key or an asymmetric key pair, that is compatible with ``alg``.
         *   ``hash_length`` is not valid for the algorithm and key type.
         *   ``hash`` is not a valid input value for the algorithm and key type.
@@ -855,6 +1106,22 @@ Support macros
         psa_hash_compute(PSA_ALG_GET_HASH(alg), msg, msg_len,
                          hash, sizeof(hash), &hash_len);
         psa_sign_hash(key, alg, hash, hash_len, ...);
+
+.. macro:: PSA_ALG_SUPPORTS_CONTEXT
+    :definition: /* specification-defined value */
+
+    .. summary::
+        Whether the specified algorithm supports context strings.
+
+    .. param:: alg
+        An algorithm identifier: a value of type `psa_algorithm_t`.
+
+    .. return::
+        ``1`` if ``alg`` supports use of contexts, ``0`` otherwise. This macro can return either ``0`` or ``1`` if ``alg`` is not a supported algorithm identifier.
+
+        A wildcard signature algorithm policy, using `PSA_ALG_ANY_HASH`, returns the same value as the signature algorithm parameterized with a valid hash algorithm.
+
+    This macro identifies algorithms that can be used with the `with_context()` functions. 
 
 .. macro:: PSA_ALG_ANY_HASH
     :definition: ((psa_algorithm_t)0x020000ff)
