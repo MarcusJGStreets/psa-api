@@ -1,0 +1,46 @@
+' SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+
+!include atg-spec.pumh
+
+' title SUIT update : high-level flow
+
+box Network
+participant "Update server" as server
+end box
+box Device
+participant "Update client" as client
+'participant "Firmware\nUpdate API" as api
+participant "Update service" as service
+participant "Installer" as installer
+end box
+
+activate client
+activate service
+server ->> client: Notify that an update is available
+server ->> client: Download SUIT envelope
+client ->> service: Transfer envelope
+service ->> service: Process manifest
+loop while need payload
+    client <<- service: Request payload
+    server ->> client: Download payload
+    client ->> service: Transfer payload
+    service ->> service: Process manifest
+end
+client <<- service: Envelope processing complete
+server <<- client: Report download complete
+server ->> client: Request to apply update
+
+client -->>] : Request reboot
+deactivate client
+deactivate service
+
+== System restarts ==
+
+installer <<--] ++: Device boot
+installer ->> installer: Process manifest
+installer ->> installer: Install payloads
+
+@enduml

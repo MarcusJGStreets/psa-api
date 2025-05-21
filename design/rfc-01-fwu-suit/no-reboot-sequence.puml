@@ -1,0 +1,102 @@
+' SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+
+!include atg-spec.pumh
+
+' Complex SUIT installation using the FWU API, no boot
+
+box Network
+participant "Update server" as server
+end box
+box Device
+participant "Update client" as client
+participant "Firmware Update API" as api
+participant "Update service" as service
+end box
+entity "Envelope state" as envelope
+
+autonumber "<b>#:"
+activate client
+activate envelope #LightBlue
+rnote over envelope #LightBlue: READY
+
+client -> service: ""psa_fwu_start(envelope_id)""
+note left: Transfer SUIT Envelope
+deactivate envelope
+activate service #ddd
+return ""PSA_SUCCESS""
+activate envelope #PaleGreen
+rnote over envelope #PaleGreen: WRITING
+
+client -> service #ddd: ""psa_fwu_write(envelope_id, ...)""
+activate service #ddd
+return ""PSA_SUCCESS""
+
+client -> service: ""psa_fwu_finish(envelope_id)""
+deactivate envelope
+activate service #ddd
+return ""PSA_FWU_PROCESSING_REQUIRED""
+activate envelope #PaleGoldenRod
+rnote over envelope #PaleGoldenRod: FETCHING
+
+client -> service: ""psa_fwu_process()""
+note left: Process SUIT manifest
+hnote over service
+    ""suit-resolve-dependencies""
+    ""suit-payload-fetch""
+end note
+activate service #ddd
+
+loop While additional payloads are required
+    return ""PSA_FWU_PAYLOAD_REQUIRED""
+
+    note over server, service: Transfer payload
+
+    autonumber 22 "<b>#:"
+    client -> service: ""psa_fwu_process()""
+    deactivate envelope
+    activate service #ddd
+end
+return ""PSA_SUCCESS""
+note left: Manifest processing complete
+activate envelope #LightSalmon
+rnote over envelope #LightSalmon: CANDIDATE
+
+client -> service #ddd: ""psa_fwu_install()""
+note left: Proceed with installation
+deactivate envelope
+activate service #ddd
+
+return ""PSA_FWU_PROCESSING_REQUIRED""
+activate envelope #Pink
+rnote over envelope #Pink: INSTALLING
+
+client -> service: ""psa_fwu_process()""
+note left: Process SUIT commands
+hnote over service
+    ""suit-candidate-validation""
+    ""suit-install""
+end note
+activate service #ddd
+
+loop While additional payloads are required
+    return ""PSA_FWU_PAYLOAD_REQUIRED""
+
+    note over server, service: Transfer payload
+
+    client -> service: ""psa_fwu_process()""
+    deactivate envelope
+    activate service #ddd
+end
+hnote over service
+    ""suit-validate""
+    ""suit-load""
+    ""suit-invoke""
+end note
+return ""PSA_SUCCESS""
+activate envelope #aad
+rnote over envelope #aad: UPDATED
+
+@enduml

@@ -1,0 +1,121 @@
+' SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+
+' SUIT update using the FWU API
+
+!include atg-spec.pumh
+
+box Network
+participant "Update server" as server
+end box
+box Device
+participant "Update client" as client
+participant "Firmware Update API" as api
+participant "Update service" as service
+participant "Bootloader" as boot
+end box
+entity "Envelope state" as envelope
+
+autonumber "<b>#:"
+activate client
+activate envelope #LightBlue
+rnote over envelope #LightBlue: READY
+
+client -> service: ""psa_fwu_start(envelope_id)""
+note left: Transfer SUIT Envelope
+deactivate envelope
+activate service #ddd
+return ""PSA_SUCCESS""
+activate envelope #PaleGreen
+rnote over envelope #PaleGreen: WRITING
+
+client -> service #ddd: ""psa_fwu_write(envelope_id, ...)""
+activate service #ddd
+return ""PSA_SUCCESS""
+
+client -> service: ""psa_fwu_finish(envelope_id)""
+deactivate envelope
+activate service #ddd
+return ""PSA_FWU_PROCESSING_REQUIRED""
+activate envelope #PaleGoldenRod
+rnote over envelope #PaleGoldenRod: FETCHING
+
+client -> service: ""psa_fwu_process()""
+note left: Process SUIT manifest
+hnote over service
+    ""suit-resolve-dependencies""
+    ""suit-payload-fetch""
+end note
+activate service #ddd
+
+loop While additional payloads are required
+    return ""PSA_FWU_PAYLOAD_REQUIRED""
+
+    client -> service: ""psa_fwu_query_payload(payload_id)""
+    activate service #ddd
+    return ""PSA_SUCCESS"" + payload information
+
+    server <<- client ++ : Fetch payload
+    client -> service: ""psa_fwu_start(payload_id)""
+    note left: Transfer payload
+    activate service #ddd
+    return ""PSA_SUCCESS""
+
+    server -->> client: Download payload
+    client -> service: ""psa_fwu_write(payload_id, ...)""
+    activate service #ddd
+    return ""PSA_SUCCESS""
+
+    server -->> client -- : Download payload
+    client -> service: ""psa_fwu_write(payload_id, ...)""
+    activate service #ddd
+    client <-- service: ""PSA_SUCCESS""
+    deactivate service
+
+    client -> service: ""psa_fwu_finish(payload_id)""
+    activate service #ddd
+    return ""PSA_SUCCESS""
+
+    client -> service: ""psa_fwu_process()""
+    note left: Resume SUIT processing
+    deactivate envelope
+    activate service #ddd
+
+end
+return ""PSA_SUCCESS""
+note left: Manifest processing complete
+activate envelope #LightSalmon
+rnote over envelope #LightSalmon: CANDIDATE
+
+client -> service #ddd: ""psa_fwu_install()""
+note left: Proceed with installation
+deactivate envelope
+activate service #ddd
+return  ""PSA_FWU_REBOOT_REQUIRED""
+activate envelope #LightCoral
+rnote over envelope #LightCoral: STAGED
+
+client -->>] --: Request reboot
+
+== System restarts ==
+
+boot <<--] ++ : Device boot
+deactivate envelope
+
+hnote over boot
+    ""suit-candidate-validation""
+    ""suit-install""
+end note
+hnote over boot
+    ""suit-validate""
+    ""suit-load""
+    ""suit-invoke""
+end note
+
+?<<-- boot: Run firmware
+activate envelope #aad
+rnote over envelope #aad: UPDATED
+
+@enduml

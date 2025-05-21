@@ -1,0 +1,99 @@
+' SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+
+!include atg-spec.pumh
+
+' Complex SUIT installation using the FWU API
+
+box Network
+participant "Update server" as server
+end box
+box Device
+participant "Payload fetcher" as fetcher
+participant "Update client" as client
+participant "Firmware Update API" as api
+participant "Installer" as installer
+participant "Bootloader" as boot
+end box
+entity "Envelope state" as envelope
+
+autonumber 25 "<b>#:"
+activate client
+
+client <-- envelope : ""PSA_FWU_REBOOT_REQUIRED""
+activate envelope #LightCoral
+rnote over envelope #LightCoral: STAGED
+
+client -->>] --: Request reboot
+
+== System restarts ==
+
+boot <<--] ++ : Device boot
+
+installer <- boot --++ : SUIT Install
+deactivate envelope
+fetcher <<- installer ++: Start payload fetcher
+activate envelope #Pink
+rnote over envelope #Pink: INSTALLING
+
+fetcher -> installer: ""psa_fwu_process()""
+note left: Process SUIT commands
+hnote over installer
+    ""suit-candidate-validation""
+    ""suit-install""
+end note
+activate installer #ddd
+
+loop While additional payloads are required
+    return ""PSA_FWU_PAYLOAD_REQUIRED""
+
+    fetcher -> installer: ""psa_fwu_query_payload(payload_id)""
+    activate installer #ddd
+    return ""PSA_SUCCESS"" + payload information
+
+    server <<- fetcher ++ : Fetch payload
+    fetcher -> installer: ""psa_fwu_start(payload_id)""
+    note left: Transfer payload
+    activate installer #ddd
+    return ""PSA_SUCCESS""
+
+    server -->> fetcher --: Download payload
+    fetcher -> installer: ""psa_fwu_write(payload_id, ...)""
+    activate installer #ddd
+    return ""PSA_SUCCESS""
+
+    fetcher -> installer: ""psa_fwu_finish(payload_id)""
+    activate installer #ddd
+    return ""PSA_SUCCESS""
+
+    fetcher -> installer: ""psa_fwu_process()""
+    note left: Resume SUIT processing
+    deactivate envelope
+    activate installer #ddd
+end
+
+fetcher <-- installer --: ""PSA_SUCCESS""
+note left: Payload fetching complete
+activate envelope #aad
+rnote over envelope #aad: UPDATED
+
+fetcher -> installer : ""exit()""
+deactivate fetcher
+
+installer -->>] --: Request reboot
+
+== System restarts ==
+
+boot <<--] ++ : Device boot
+
+hnote over boot
+    ""suit-validate""
+    ""suit-load""
+    ""suit-invoke""
+end note
+
+?<<-- boot: Run firmware
+
+@enduml

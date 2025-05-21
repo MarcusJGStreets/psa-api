@@ -1,0 +1,41 @@
+' SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+' SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
+
+@startuml
+
+!include atg-spec.pumh
+
+' title SUIT update : advanced installers
+
+box Network
+participant "Update server" as server
+end box
+box Device
+participant "Payload fetcher" as fetcher
+participant "Update client" as client
+'participant "Firmware\nUpdate API" as api
+participant "Installer" as installer
+end box
+
+activate client
+client -->>] --: Request reboot
+
+== System restarts ==
+
+installer <<--] ++ : Device boot
+fetcher <<- installer ++: Start fetcher
+
+installer ->> installer: Process manifest
+loop while need payload
+    fetcher <<- installer: Request payload
+    server ->> fetcher: Download payload
+    fetcher ->> installer: Transfer payload
+    installer ->> installer: Process manifest
+end
+fetcher <<- installer: Payload fetching complete
+deactivate fetcher
+
+?<<- installer: Execute installed firmware
+deactivate installer
+
+@enduml
