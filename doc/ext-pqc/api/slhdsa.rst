@@ -310,10 +310,11 @@ An SLH-DSA signature can only be verified with an SLH-DSA algorithm. A HashSLH-D
 
 .. rubric:: Contexts
 
-From release 1.3.1 this specification includes functions that take non-empty contexts. 
+From release 1.4.0 this specification includes functions that take non-empty contexts. 
 
-The default signature functions use an empty context string when computing or verifying ML-DSA signatures.
-To use a non-default context, you must use the `with_context()` functions. 
+The :code:`psa_sign_message()` and :code:`psa_verify message()` functions use an empty context string when computing or verifying ML-DSA signatures.
+
+To use a supplid context, use :code:`psa_sign_message_with_context()` or :code:`psa_verify message_with_context()`.
 
 .. macro:: PSA_ALG_SLH_DSA
     :definition: ((psa_algorithm_t) 0x06004000)
@@ -323,7 +324,7 @@ To use a non-default context, you must use the `with_context()` functions.
 
         .. versionadded:: 1.3
 
-    This algorithm can only be used with the :code:`psa_sign_message()` and :code:`psa_verify_message()` functions.
+    This algorithm can only be used with the message signature functions, for example :code:`psa_sign_message()` and :code:`psa_verify_message_with_context()` functions.
 
     This is the pure SLH-DSA digital signature algorithm, defined by :cite-title:`FIPS205`, using hedging.
     SLH-DSA requires an SLH-DSA key, which determines the SLH-DSA parameter set for the operation.
@@ -354,7 +355,7 @@ To use a non-default context, you must use the `with_context()` functions.
 
         .. versionadded:: 1.3
 
-    This algorithm can only be used with the :code:`psa_sign_message()` and :code:`psa_verify_message()` functions.
+    This algorithm can only be used with the message signature functions, for example :code:`psa_sign_message_with_context()` and :code:`psa_verify_message()` functions.
 
     This is the pure SLH-DSA digital signature algorithm, defined by `[FIPS205]`, without hedging.
     SLH-DSA requires an SLH-DSA key, which determines the SLH-DSA parameter set for the operation.
@@ -420,13 +421,13 @@ To use a non-default context, you must use the `with_context()` functions.
 
         This is a hash-and-sign algorithm. To calculate a signature, use one of the following approaches:
 
-        *   Call :code:`psa_sign_message()` with the message.
+        *   Call :code:`psa_sign_message()` or :code:`psa_sign_message_with_context()`with the message.
 
         *   Calculate the hash of the message with :code:`psa_hash_compute()`, or with a multi-part hash operation, using the ``hash_alg`` hash algorithm.
             Note that ``hash_alg`` can be extracted from the signature algorithm using :code:`PSA_ALG_GET_HASH(sig_alg)`.
-            Then sign the calculated hash with :code:`psa_sign_hash()`.
+            Then sign the calculated hash either with :code:`psa_sign_hash()` or, if the protocol requires the use of a non-empty context, with :code:`psa_sign_hash_with_context()`.
 
-        Verifying a signature is similar, using :code:`psa_verify_message()` or :code:`psa_verify_hash()` instead of the signature function.
+        Verifying a signature is similar, using :code:`psa_verify_message()` or :code:`psa_verify_hash()` instead of the signature function, or :code:`psa_verify_message_with_context()` or :code:`psa_verify_hash_with_context()` if a non-empty context has been used. 
 
     .. subsection:: Compatible key types
 
