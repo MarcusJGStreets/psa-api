@@ -189,7 +189,7 @@ RSA signature algorithms
         The RSA PSS message signature scheme, with hashing.
         This variant permits any salt length for signature verification.
 
-        .. :: 1.1
+        .. versionadded :: 1.1
 
     .. param:: hash_alg
         A hash algorithm: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_HASH(hash_alg)` is true. This includes `PSA_ALG_ANY_HASH` when specifying the algorithm in a key policy.
@@ -452,7 +452,7 @@ ECDSA signature algorithms
 
         This macro can return either ``0`` or ``1`` if ``alg`` is not a supported algorithm identifier.
 
-PureEdDSA    See also `PSA_ALG_IS_ECDSA()` and `PSA_ALG_IS_DETERMINISTIC_ECDSA()`.
+    See also `PSA_ALG_IS_ECDSA()` and `PSA_ALG_IS_DETERMINISTIC_ECDSA()`.
 
 .. _eddsa-sign-algorithms:
 
@@ -473,7 +473,7 @@ EdDSA signature algorithms
 
     PureEdDSA requires an elliptic curve key on a twisted Edwards curve. The following curves are supported:
 
-    *   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.1.6`. 
+    *   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.1.6`. This does not accept a context, so it cannot be used with functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`, except with an empty context string.  
 
     *   Edwards448: Unless you use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`, the Ed448 algorithm is computed with an empty string as the context. The output signature is a 114-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.2.6`.
 
@@ -485,7 +485,7 @@ EdDSA signature algorithms
     .. note::
         When signatures on the Edwards 25519 curve were originally defined without domain separation. Later the Ed25519ctx and Ed25519ph variants were defined, both of which accept a context string. However, a signature made with Ed25519ctx and an empty context is distinct from a signature made using the Ed25519.
         
-        As PureEdDSA does not support contexts, using PureEdDSA with a non-empty context is an error. 
+        As PureEdDSA does not support contexts, using PureEdDSA with a non-empty context on the 25519 curve is an error. 
 
     .. subsection:: Compatible key types
 
@@ -493,18 +493,22 @@ EdDSA signature algorithms
         | :code:`PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS)` (signature verification only)
 
 .. macro:: PSA_ALG_ED25519CTX
-    :definition: ((psa_algorithm_t) 0x0600090C)
+    :definition: ((psa_algorithm_t) 0x06000A00)
 
     .. summary::
         Edwards-curve digital signature algorithm with context, using the Edwards25519 curve.
 
-        .. versionadded:: 1.4.0
+        .. versionadded:: 1.4
         
-    This signature algorithm can be used with both the message and hash signature functions.
+    This signature algorithm can be used with both the message and message with context  signature functions.
 
     This calculates the Ed25519ctx algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 curve key. The `psa_sign_message()` and `psa_verify_message()` functions use an empty context string when computing or verifying signatures. 
     
     To use a non-empty context, use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`
+
+    .. admonition:: Implementation note
+
+       Even if you do supply an empty context, signatures created with Ed25519ctx are distinct from those created with PureEdDSA.
 
     .. subsection:: Usage
 
@@ -519,9 +523,6 @@ EdDSA signature algorithms
         | :code:`PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)`
         | :code:`PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS)` (signature verification only)
 
-    .. admonition:: Implementation note
-
-       Even if you do supply an empty context, signatures created with Ed25519ctx are distinct from those created with PureEdDSA.
 
 .. macro:: PSA_ALG_ED25519PH
     :definition: ((psa_algorithm_t) 0x0600090B)
