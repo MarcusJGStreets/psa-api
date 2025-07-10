@@ -531,7 +531,7 @@ psa_status_t psa_generate_key_custom(const psa_key_attributes_t * attributes,
                                      const psa_custom_key_parameters_t * custom,
                                      const uint8_t * custom_data,
                                      size_t custom_data_length,
-                                     mbedtls_svc_key_id_t * key);
+                                     psa_key_id_t * key);
 psa_status_t psa_generate_random(uint8_t * output,
                                  size_t output_size);
 psa_algorithm_t psa_get_key_algorithm(const psa_key_attributes_t * attributes);
@@ -617,7 +617,7 @@ psa_status_t psa_key_derivation_output_key_custom(const psa_key_attributes_t * a
                                                   const psa_custom_key_parameters_t * custom,
                                                   const uint8_t * custom_data,
                                                   size_t custom_data_length,
-                                                  mbedtls_svc_key_id_t * key);
+                                                  psa_key_id_t * key);
 psa_status_t psa_key_derivation_set_capacity(psa_key_derivation_operation_t * operation,
                                              size_t capacity);
 psa_status_t psa_key_derivation_setup(psa_key_derivation_operation_t * operation,

@@ -11,6 +11,34 @@ Document change history
 
 This section provides the detailed changes made between published version of the document.
 
+Changes between *1.3.1* and *1.4.0*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes to the API
+~~~~~~~~~~~~~~~~~~
+
+*   TBD
+
+Clarifications and fixes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+*   TBD
+
+Other changes
+~~~~~~~~~~~~~
+
+*   TBD
+
+Changes between *1.3.0* and *1.3.1*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Clarifications and fixes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+*   Clarify the way a 'volatile key' is designated, based on a persistence level of `PSA_KEY_PERSISTENCE_VOLATILE`, to ensure that this is consistent throughout the specification. See :secref:`key-lifetimes`.
+*   Corrected the type of the key id parameter to `psa_generate_key_custom()` and `psa_key_derivation_output_key_custom()`.
+*   Added missing 'Added in version' information to key derivation macros.
+
 Changes between *1.2.1* and *1.3.0*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

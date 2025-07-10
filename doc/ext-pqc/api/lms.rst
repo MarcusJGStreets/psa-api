@@ -92,6 +92,8 @@ Leighton-Micali Signature keys
 Leighton-Micali Signature algorithms
 ------------------------------------
 
+These algorithms extend those defined in :cite-title:`PSA-CRYPT` §10.7 *Asymmetric signature*, for use with the signature functions.
+
 .. macro:: PSA_ALG_LMS
     :definition: ((psa_algorithm_t) 0x06004800)
 

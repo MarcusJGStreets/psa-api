@@ -8,7 +8,7 @@
 
 doc_info = {
     # Document template
-    'template': 'psa-api-2022',
+    'template': 'psa-api-2025',
 
     # Document title, MANDATORY
     'title': 'PSA Certified\nCrypto API',
@@ -29,10 +29,10 @@ doc_info = {
     'quality': 'BET',
     # Arm document issue number (within that version and quality status)
     # Marked as open issue if not provided
-    'issue_no': 0,
+    'issue_no': 1,
     # Identifies the sequence number of a release candidate of the same issue
     # default to None
-    #'release_candidate': 1,
+    'release_candidate': 0,
     # Draft status - use this to indicate the document is not ready for publication
     'draft': False,
 
@@ -45,7 +45,7 @@ doc_info = {
     'license': 'psa-certified-api-license',
 
     # Document date, default to build date
-    'date': '31/03/2025',
+    'date': '10/06/2025',
 
     # Default header file for API definitions
     # default to None, and can be set in documentation source

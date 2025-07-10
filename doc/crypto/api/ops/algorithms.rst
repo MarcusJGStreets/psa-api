@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright 2018-2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+.. SPDX-FileCopyrightText: Copyright 2018-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. _algorithms:
@@ -31,7 +31,7 @@ Algorithm encoding
 ------------------
 
 .. header:: psa/crypto
-    :seq: 16
+    :seq: 160
 
 .. typedef:: uint32_t psa_algorithm_t
 
@@ -56,7 +56,7 @@ Algorithm encoding
     The :secref:`appendix-encodings` appendix provides a full definition of the algorithm identifier encoding.
 
 .. header:: psa/crypto
-    :seq: 20
+    :seq: 200
 
 .. macro:: PSA_ALG_NONE
     :definition: ((psa_algorithm_t)0)

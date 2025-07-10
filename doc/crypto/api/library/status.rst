@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright 2018-2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+.. SPDX-FileCopyrightText: Copyright 2018-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. _status-codes:
@@ -92,7 +92,7 @@ Error codes specific to the |API|
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. header:: psa/crypto
-    :seq: 2
+    :seq: 20
 
 The following elements are defined in the :file:`psa/crypto.h` header file.
 

@@ -5,7 +5,7 @@
 =============
 
 .. header:: psa/crypto
-    :seq: 1
+    :seq: 10
     :copyright: Copyright 2018-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
     :license: Apache-2.0
     :c++:

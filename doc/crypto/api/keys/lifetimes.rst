@@ -1,8 +1,8 @@
-.. SPDX-FileCopyrightText: Copyright 2018-2022, 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+.. SPDX-FileCopyrightText: Copyright 2018-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. header:: psa/crypto
-    :seq: 14
+    :seq: 140
 
 .. _key-lifetimes:
 
@@ -24,11 +24,13 @@ Volatile keys
 
 Volatile keys are automatically destroyed when the application instance terminates or on a power reset of the device. Volatile keys can be explicitly destroyed by the application.
 
-Conceptually, a volatile key is stored in RAM. Volatile keys have the lifetime `PSA_KEY_LIFETIME_VOLATILE`.
+Volatile keys have the persistence level `PSA_KEY_PERSISTENCE_VOLATILE` in the key lifetime value, see :secref:`key-lifetime-encoding`.
+Unless the key lifetime is explicitly set in the key attributes before creating a key, a volatile key will be created with the default `PSA_KEY_LIFETIME_VOLATILE` lifetime value.
 
 To create a volatile key:
 
 1.  Populate a `psa_key_attributes_t` object with the required type, size, policy and other key attributes.
+#.  If a non-default storage location is being used, set the key lifetime in the attributes object.
 #.  Create the key with one of the key creation functions. If successful, these functions output a transient `key identifier <key-identifiers>`.
 
 To destroy a volatile key: call `psa_destroy_key()` with the key identifier. There must be a matching call to `psa_destroy_key()` for each successful call to a create a volatile key.
@@ -60,8 +62,10 @@ To destroy a persistent key: call `psa_destroy_key()` with the key identifier. D
 By default, persistent key material is removed from volatile memory when not in use. Frequently used persistent keys can benefit from caching, depending on the implementation and the application. Caching can be enabled by creating the key with the `PSA_KEY_USAGE_CACHE` policy. Cached keys can be removed from volatile memory by calling `psa_purge_key()`. See also :secref:`memory-cleanup` and :secref:`key-material`.
 
 
-Lifetime encodings
-------------------
+.. _key-lifetime-encoding:
+
+Key lifetime encoding
+---------------------
 
 .. typedef:: uint32_t psa_key_lifetime_t
 
@@ -262,16 +266,18 @@ Attribute accessors
 .. function:: psa_set_key_lifetime
 
     .. summary::
-        Set the location of a persistent key.
+        Set the lifetime of a key, for a persistent key or a non-default location.
 
     .. param:: psa_key_attributes_t * attributes
         The attribute object to write to.
     .. param:: psa_key_lifetime_t lifetime
-        The lifetime for the key. If this is `PSA_KEY_LIFETIME_VOLATILE`, the key will be volatile, and the key identifier attribute is reset to `PSA_KEY_ID_NULL`.
+        The lifetime for the key.
+
+        If this is a volatile lifetime (such that :code:`PSA_KEY_LIFETIME_IS_VOLATILE(lifetime)` is true), the key identifier attribute is reset to `PSA_KEY_ID_NULL`.
 
     .. return:: void
 
-    To make a key persistent, give it a persistent key identifier by using `psa_set_key_id()`. By default, a key that has a persistent identifier is stored in the default storage area identifier by `PSA_KEY_LIFETIME_PERSISTENT`. Call this function to choose a storage area, or to explicitly declare the key as volatile.
+    To make a key persistent, give it a persistent key identifier by using `psa_set_key_id()`. By default, a key that has a persistent identifier is stored in the default storage area identifier by `PSA_KEY_LIFETIME_PERSISTENT`. Call this function to choose a specific storage area, or to explicitly declare the key as volatile.
 
     This function does not access storage, it merely stores the given value in the attribute object. The persistent key will be written to storage when the attribute object is passed to a key creation function such as `psa_import_key()`, `psa_generate_key()`, `psa_generate_key_custom()`, `psa_key_derivation_output_key()`, `psa_key_derivation_output_key_custom()`, `psa_key_agreement()`, `psa_encapsulate()`, `psa_decapsulate()`, `psa_pake_get_shared_key()`, or `psa_copy_key()`.
 

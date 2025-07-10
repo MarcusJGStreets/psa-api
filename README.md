@@ -22,7 +22,7 @@ The following specifications are part of the PSA Certified API.
 
 Specification | Published | Document source | Reference headers | Dashboard
 -|-|-|-|-
-Crypto API | [1.3.0][crypto-specs] | [doc/crypto/] | [headers/crypto/1.3/] | [Project board][crypto-dash]
+Crypto API | [1.3.1][crypto-specs] | [doc/crypto/] | [headers/crypto/1.3/] | [Project board][crypto-dash]
 Secure Storage API | [1.0.3][storage-specs] | [doc/storage/] |  [headers/storage/1.0/] | [Project board][storage-dash] |
 Attestation API | [1.0.3][attestation-specs] | [doc/attestation/] |  [headers/attestation/1.0/] | [Project board][attestation-dash] |
 Firmware Update API | [1.0.0][fwu-specs] | [doc/fwu/] |  [headers/fwu/1.0/] | [Project board][fwu-dash]
@@ -59,7 +59,7 @@ Extension specifications introduce new functionality that is not yet stable enou
 API | Extension | Published | Document source | Reference headers | Dashboard
 -|-|-|-|-|-
 Crypto API | PAKE | [*Integrated in 1.3.0*][crypto-specs] | *n/a* | *n/a* | *n/a*
-Crypto API | PQC | [1.3 Beta][crypto-specs] |  [doc/ext-pqc/] | [headers/crypto/1.3/]  | [Project board][crypto-dash]
+Crypto API | PQC | [1.3 Beta-1][crypto-specs] |  [doc/ext-pqc/] | [headers/crypto/1.3/]  | [Project board][crypto-dash]
 
 [doc/ext-pqc/]:        doc/ext-pqc
 

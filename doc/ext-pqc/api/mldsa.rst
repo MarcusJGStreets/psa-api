@@ -150,6 +150,8 @@ The |API| supports Module Lattice-based digital signatures (ML-DSA), as defined 
 Module Lattice-based signature algorithms
 -----------------------------------------
 
+These algorithms extend those defined in :cite-title:`PSA-CRYPT` §10.7 *Asymmetric signature*, for use with the signature functions.
+
 The ML-DSA signature and verification scheme is defined in :cite-title:`FIPS204`.
 ML-DSA has three parameter sets which provide differing security strengths.
 

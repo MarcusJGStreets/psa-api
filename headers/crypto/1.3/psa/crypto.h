@@ -533,7 +533,8 @@ typedef uint32_t psa_key_location_t;
 #define PSA_KEY_LOCATION_PRIMARY_SECURE_ELEMENT ((psa_key_location_t) 0x000001)
 
 /**
- * @brief Set the location of a persistent key.
+ * @brief Set the lifetime of a key, for a persistent key or a non-default
+ *        location.
  *
  * @param attributes The attribute object to write to.
  * @param lifetime   The lifetime for the key.
@@ -792,7 +793,7 @@ psa_status_t psa_generate_key_custom(const psa_key_attributes_t * attributes,
                                      const psa_custom_key_parameters_t * custom,
                                      const uint8_t * custom_data,
                                      size_t custom_data_length,
-                                     mbedtls_svc_key_id_t * key);
+                                     psa_key_id_t * key);
 
 /**
  * @brief Make a copy of a key.
@@ -2567,7 +2568,7 @@ psa_status_t psa_key_derivation_output_key_custom(const psa_key_attributes_t * a
                                                   const psa_custom_key_parameters_t * custom,
                                                   const uint8_t * custom_data,
                                                   size_t custom_data_length,
-                                                  mbedtls_svc_key_id_t * key);
+                                                  psa_key_id_t * key);
 
 /**
  * @brief Compare output data from a key-derivation operation to an expected

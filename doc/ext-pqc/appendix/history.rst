@@ -9,6 +9,14 @@ Changes to the API
 Document change history
 -----------------------
 
+Changes between *Beta 0* and *Beta 1*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Clarifications and fixes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+*   Added references from each section to the relevant APIs in :cite-title:`PSA-CRYPT`.
+
 Beta release
 ^^^^^^^^^^^^
 

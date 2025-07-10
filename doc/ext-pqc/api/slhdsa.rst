@@ -253,6 +253,8 @@ The |API| supports Stateless Hash-based digital signatures (SLH-DSA), as defined
 Stateless Hash-based signature algorithms
 -----------------------------------------
 
+These algorithms extend those defined in :cite-title:`PSA-CRYPT` §10.7 *Asymmetric signature*, for use with the signature functions.
+
 The SLH-DSA signature and verification scheme is defined in :cite-title:`FIPS205`.
 SLH-DSA has twelve parameter sets which provide differing security strengths, trade-off between signature size and computation cost, and selection between SHA2 and SHAKE-based hashing.
 

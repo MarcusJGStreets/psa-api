@@ -137,6 +137,11 @@ The |API| supports Module Lattice-based key ecapsulation (ML-KEM) as defined in 
 Module Lattice-based key-encapsulation algorithm
 ------------------------------------------------
 
+These algorithms extend those defined in :cite-title:`PSA-CRYPT` §10.10 *Key encapsulation*, for use with the key-encapsulation functions.
+
+.. note::
+    The key-encapsulation functions, :code:`psa_encapsulate()` and :code:`psa_decapsulate()`, were introduced in version 1.3 of the |API|.
+
 ML-KEM is defined in :cite-title:`FIPS203`.
 ML-KEM has three parameter sets which provide differing security strengths.
 

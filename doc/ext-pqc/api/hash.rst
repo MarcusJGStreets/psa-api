@@ -9,6 +9,9 @@
 Additional Hash algorithms
 ==========================
 
+These algorithms extend those defined in :cite-title:`PSA-CRYPT` §10.2 *Message digests*.
+They are used with the hash functions and multi-part operations, or combined with composite algorithms that are parameterized by a hash algorithm.
+
 SHA-256-based hash algorithms
 -----------------------------
 

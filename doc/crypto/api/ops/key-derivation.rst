@@ -1,8 +1,8 @@
-.. SPDX-FileCopyrightText: Copyright 2018-2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+.. SPDX-FileCopyrightText: Copyright 2018-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. header:: psa/crypto
-    :seq: 25
+    :seq: 250
 
 .. _kdf:
 
@@ -340,6 +340,8 @@ Key-derivation algorithms
 
     .. summary::
         The TLS 1.2 ECJPAKE-to-PMS key-derivation algorithm.
+
+        .. versionadded:: 1.2
 
     This KDF is defined in :cite-title:`TLS-ECJPAKE` §8.7. This specifies the use of a KDF to derive the TLS 1.2 session secrets from the output of EC J-PAKE over the secp256r1 Elliptic curve (the 256-bit curve in `PSA_ECC_FAMILY_SECP_R1`). EC J-PAKE operations can be performed using a PAKE operation, see :secref:`pake`.
 
@@ -885,7 +887,7 @@ Key-derivation functions
             If the key type to be created is `PSA_KEY_TYPE_PASSWORD_HASH`, then the permitted-algorithm policy must be either the same as the current operation's algorithm, or `PSA_ALG_NONE`.
         *   The key usage flags, see :secref:`key-usage-flags`.
 
-        The following attributes must be set for keys that do not use the default volatile lifetime:
+        The following attributes must be set for keys that do not use the default `PSA_KEY_LIFETIME_VOLATILE` lifetime:
 
         *   The key lifetime, see :secref:`key-lifetimes`.
         *   The key identifier is required for a key with a persistent lifetime, see :secref:`key-identifiers`.
@@ -985,7 +987,7 @@ Key-derivation functions
             If the key type to be created is `PSA_KEY_TYPE_PASSWORD_HASH`, then the permitted-algorithm policy must be either the same as the current operation's algorithm, or `PSA_ALG_NONE`.
         *   The key usage flags, see :secref:`key-usage-flags`.
 
-        The following attributes must be set for keys that do not use the default volatile lifetime:
+        The following attributes must be set for keys that do not use the default `PSA_KEY_LIFETIME_VOLATILE` lifetime:
 
         *   The key lifetime, see :secref:`key-lifetimes`.
         *   The key identifier is required for a key with a persistent lifetime, see :secref:`key-identifiers`.
@@ -1005,7 +1007,7 @@ Key-derivation functions
         A buffer containing additional variable-sized production parameters.
     .. param:: size_t custom_data_length
         Length of ``custom_data`` in bytes.
-    .. param:: mbedtls_svc_key_id_t * key
+    .. param:: psa_key_id_t * key
         On success, an identifier for the newly created key.
         For persistent keys, this is the key identifier defined in ``attributes``.
         `PSA_KEY_ID_NULL` on failure.
@@ -1215,6 +1217,8 @@ Support macros
     .. summary::
         Whether the specified algorithm is a key-stretching or password-hashing algorithm.
 
+        .. versionadded:: 1.1
+
     .. param:: alg
         An algorithm identifier: a value of type `psa_algorithm_t`.
 
@@ -1245,6 +1249,8 @@ Support macros
     .. summary::
         Whether the specified algorithm is an HKDF-Extract algorithm (:code:`PSA_ALG_HKDF_EXTRACT(hash_alg)`).
 
+        .. versionadded:: 1.1
+
     .. param:: alg
         An algorithm identifier: a value of type `psa_algorithm_t`.
 
@@ -1257,6 +1263,8 @@ Support macros
     .. summary::
         Whether the specified algorithm is an HKDF-Expand algorithm (:code:`PSA_ALG_HKDF_EXPAND(hash_alg)`).
 
+        .. versionadded:: 1.1
+
     .. param:: alg
         An algorithm identifier: a value of type `psa_algorithm_t`.
 
@@ -1266,10 +1274,10 @@ Support macros
 .. macro:: PSA_ALG_IS_SP800_108_COUNTER_HMAC
     :definition: /* specification-defined value */
 
-        .. versionadded:: 1.2
-
     .. summary::
         Whether the specified algorithm is a key-derivation algorithm constructed using :code:`PSA_ALG_SP800_108_COUNTER_HMAC(hash_alg)`.
+
+        .. versionadded:: 1.2
 
     .. param:: alg
         An algorithm identifier: a value of type `psa_algorithm_t`.
@@ -1306,6 +1314,8 @@ Support macros
 
     .. summary::
         Whether the specified algorithm is a PBKDF2-HMAC algorithm.
+
+        .. versionadded:: 1.1
 
     .. param:: alg
         An algorithm identifier: a value of type `psa_algorithm_t`.
