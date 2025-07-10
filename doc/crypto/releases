@@ -83,8 +83,9 @@
 
     Clarifications and fixes
 
-.. release:: 1.4.0 Final 
+.. release:: 1.4.0 Final
     :date: ? 2025
     :confidentiality: Non-confidential
 
-    Added new functions for signatures with context. 
+   TBD
+   Added new functions for signatures with context. 
