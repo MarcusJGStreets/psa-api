@@ -269,7 +269,7 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
 
     If this flag is present on all keys used in calls to `psa_key_derivation_input_key()` for a key-derivation operation, then it permits calling `psa_key_derivation_verify_bytes()` or `psa_key_derivation_verify_key()` at the end of the operation.
 
-.. macro:: PSA_KEY_USAGE_PAKE_2
+.. macro:: PSA_KEY_USAGE_PAKE_PUBLIC
     :definition: ((psa_key_usage_t)0x00010000)
 
     .. summary::
@@ -337,18 +337,18 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
 
     If the supplied key is a key pair, the function checks the appropriate half of the key pair. For example, if the usage flag was `PSA_KEY_USAGE_SIGN_MESSAGE`, it would check the private key. But if it were `PSA_KEY_USAGE_VERIFY_MESSAGE` it would check the public key. 
     
-    The algorithm must be fully defined. if the algorithm is a wildcard, the function returns `PSA_ERROR_INVALID_ARGUMENT`. 
+    The algorithm must be fully defined. if the algorithm is a wildcard, the function returns ``PSA_ERROR_INVALID_ARGUMENT``. 
 
-    The usage flag must correspond to an operation that uses an algorithm. If you select a flag that is not algorithm dependent, like COPY tor EXPORT, the function returns PSA_ERROR_INVALID_ARGUMENT.
+    The usage flag must correspond to an operation that uses an algorithm. If you select a flag that is not algorithm dependent, like COPY tor EXPORT, the function returns ``PSA_ERROR_INVALID_ARGUMENT``.
 
-    If this implementation does not offer this algorithm, the function returns `PSA_ERROR_NOT_SUPPORTED` without checking the key object.
+    If this implementation does not offer this algorithm, the function returns ``PSA_ERROR_NOT_SUPPORTED`` without checking the key object.
 
-    If the implementation offers the algorithm, and the key does not exist, the function returns `PSA_ERROR_INVALID_HANDLE`.
+    If the implementation offers the algorithm, and the key does not exist, the function returns ``PSA_ERROR_INVALID_HANDLE``.
 
-    If the implementation offers the algorithm, and the key does exists, but is not of the correct type, the function returns `PSA_ERROR_INVALID_ARGUMENT`.
+    If the implementation offers the algorithm, and the key does exists, but is not of the correct type, the function returns ``PSA_ERROR_INVALID_ARGUMENT``.
 
-    If the implementation offers the algorithm, but the key does not have the correct permission, the function returns `PSA_ERROR_NOT_PERMITTED`.
+    If the implementation offers the algorithm, but the key does not have the correct permission, the function returns ``PSA_ERROR_NOT_PERMITTED``.
 
-    If the implementation offers the algorimth, and the key is the correct type and has the correct permission, the function returns `PSA_SUCCESS`.
+    If the implementation offers the algorimth, and the key is the correct type and has the correct permission, the function returns ``PSA_SUCCESS``.
 
     When checking a public key with a usage flag for an operation where the public key is provided as a buffer, for example, the public key in a derive operation, or the counterparty key in a key establishment, then the function indicates that the operation supports this type of key in this role. It ignores permissions, as all public keys can be exported. 
