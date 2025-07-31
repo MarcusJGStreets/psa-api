@@ -97,7 +97,11 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
     -   `PSA_KEY_USAGE_DERIVE`
     -   `PSA_KEY_USAGE_VERIFY_DERIVATION`
 
-*      The flag `PSA_KEY_USAGE_PAKE_PUBLIC` is used in the function `psa_check_key_usage` to query if a key is of the correct type to use in a PAKE operation. However, the key is supplied as a buffer, not a key object, and therefore the flag is not actually checked. 
+*      The flag `PSA_KEY_USAGE_DERIVE_PUBLIC` it is not checked when calling any of the APIs to carry out a cryptographic operation. However, it is used in the function `psa_check_key_usage` to query if a key is of the correct type for the public role in the specified algorithm, which is may be provided in a buffer and not as a key object. For example PSA_KEY_USAGE_DERIVE_PUBLIC with:
+
+    -   ``PSA_ALG_ECDH`` checks that the key can be used as the public share in the ECDH key agreement. There are no checks on permssions as this is provided in a buffer. 
+    -   ``PSA_ALG_SPAKE2P_HMAC`` will check that the key can be used in the Verifier role in the SPAKE2+ algorithm. The key must have the `PSA_KEY_USAGE_DERIVE` permission. 
+    -   ``PSA_ALG_HKDF`` is invalid, as there is no such role in single-key derivation algorithms.
 
 .. typedef:: uint32_t psa_key_usage_t
 
@@ -269,7 +273,7 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
 
     If this flag is present on all keys used in calls to `psa_key_derivation_input_key()` for a key-derivation operation, then it permits calling `psa_key_derivation_verify_bytes()` or `psa_key_derivation_verify_key()` at the end of the operation.
 
-.. macro:: PSA_KEY_USAGE_PAKE_PUBLIC
+.. macro:: PSA_KEY_USAGE_DERIVE_PUBLIC
     :definition: ((psa_key_usage_t)0x00010000)
 
     .. summary::
@@ -320,7 +324,14 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
 .. function::  psa_check_key_usage
 
     .. summary::
-        Queries the capabilities of a PSA key object. 
+        Queries the capabilities of a key. 
+
+        Returns success only if this key object exists and is the correct type for the requested operation and this implementation supports the algorithm and the key has the required permission. 
+
+        That is, if the application were to call the identified operation with this key and with all other parameters correct, the operation should succeed. 
+        
+        This function only checks permissions, it does not attempt to perform the operation, so does not use any resources in the cryptographic engine. 
+
 
         .. versionadded:: 1.4
 
@@ -333,22 +344,23 @@ The usage flags are encoded in a bitmask, which has the type `psa_key_usage_t`. 
     .. param:: psa_key_usage_t usage
          a single PSA_KEY_USAGE_xxx flag. 
 
-    .. return:: psa_status_t
+   .. return:: psa_status_t
 
-    If the supplied key is a key pair, the function checks the appropriate half of the key pair. For example, if the usage flag was `PSA_KEY_USAGE_SIGN_MESSAGE`, it would check the private key. But if it were `PSA_KEY_USAGE_VERIFY_MESSAGE` it would check the public key. 
-    
-    The algorithm must be fully defined. if the algorithm is a wildcard, the function returns ``PSA_ERROR_INVALID_ARGUMENT``. 
+    .. retval:: PSA_SUCCESS
+        ``key`` can be used for the requested operation on this implementation. That is the ``alg`` is supported, ``key`` is of the correct type and has the requied permissions for ``useage``. 
 
-    The usage flag must correspond to an operation that uses an algorithm. If you select a flag that is not algorithm dependent, like COPY tor EXPORT, the function returns ``PSA_ERROR_INVALID_ARGUMENT``.
+    .. retval:: PSA_ERROR_INVALID_ARGUMENT
+        Either ``algorithm`` is a wildcard, 
+        or ``usage`` is an operation that is not algorithm dependent, like COPY or EXPORT.
+        or ``key`` is not of the correct type for the operation. 
 
-    If this implementation does not offer this algorithm, the function returns ``PSA_ERROR_NOT_SUPPORTED`` without checking the key object.
+    .. retval:: PSA_ERROR_NOT_SUPPORTED
+        ``alg`` and ``useage`` together refer to an operation on an algorithm that is not supported by this implementation.  
 
-    If the implementation offers the algorithm, and the key does not exist, the function returns ``PSA_ERROR_INVALID_HANDLE``.
+    .. retval: PSA_ERROR_INVALID_HANDLE: 
+        ``key`` does not exist
 
-    If the implementation offers the algorithm, and the key does exists, but is not of the correct type, the function returns ``PSA_ERROR_INVALID_ARGUMENT``.
+    .. retval: PSA_ERROR_NOT_PERMITTED
+        ``key`` does not have the correct permission for the ``useage``
 
-    If the implementation offers the algorithm, but the key does not have the correct permission, the function returns ``PSA_ERROR_NOT_PERMITTED``.
-
-    If the implementation offers the algorimth, and the key is the correct type and has the correct permission, the function returns ``PSA_SUCCESS``.
-
-    When checking a public key with a usage flag for an operation where the public key is provided as a buffer, for example, the public key in a derive operation, or the counterparty key in a key establishment, then the function indicates that the operation supports this type of key in this role. It ignores permissions, as all public keys can be exported. 
+    When checking a public key with a usage flag for an operation where the public key is provided as a buffer, for example, the public key in a derive operation, or the counterparty key in a key establishment, then the function indicates that the operation supports this type of key in this role. It ignores permissions, as all public keys can be exported.
