@@ -29,7 +29,7 @@ doc_info = {
     'quality': 'BET',
     # Arm document issue number (within that version and quality status)
     # Marked as open issue if not provided
-    'issue_no': 1,
+    'issue_no': 2,
     # Identifies the sequence number of a release candidate of the same issue
     # default to None
     'release_candidate': 0,
@@ -45,7 +45,7 @@ doc_info = {
     'license': 'psa-certified-api-license',
 
     # Document date, default to build date
-    'date': '10/06/2025',
+    'date': '29/07/2025',
 
     # Default header file for API definitions
     # default to None, and can be set in documentation source

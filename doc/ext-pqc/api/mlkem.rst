@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
+.. SPDX-FileCopyrightText: Copyright 2024-2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. header:: psa/crypto-pqc
@@ -54,7 +54,11 @@ The |API| supports Module Lattice-based key ecapsulation (ML-KEM) as defined in 
 
         An ML-KEM key pair is the :math:`(ek,dk)` pair of encapsulation key and decapsulation key, which are generated from two secret 32-byte seeds, :math:`d` and :math:`z`. See `[FIPS203]` §7.1.
 
-        The data format for import and export of the key pair is the concatenation of the two seed values: :math:`d\ ||\ z`.
+        In calls to :code:`psa_import_key()` and :code:`psa_export_key()`, the key-pair data format is the concatenation of the two seed values:
+
+        .. math::
+
+            d\ ||\ z
 
         .. rationale::
 
@@ -111,6 +115,8 @@ The |API| supports Module Lattice-based key ecapsulation (ML-KEM) as defined in 
             The current proposed format is based on the expected outcome of that process.
 
         An ML-KEM public key is the :math:`ek` output of ``ML-KEM.KeyGen()``, defined in `[FIPS203]` §7.1.
+
+        In calls to :code:`psa_import_key()`, :code:`psa_export_key()`, and :code:`psa_export_public_key()`, the public-key data format is :math:`ek`.
 
         The size of the public key depends on the ML-KEM parameter set as follows:
 

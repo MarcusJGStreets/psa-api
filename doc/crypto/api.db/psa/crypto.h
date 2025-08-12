@@ -210,7 +210,7 @@ typedef struct psa_custom_key_parameters_t {
 #define PSA_CIPHER_UPDATE_OUTPUT_SIZE(key_type, alg, input_length) \
     /* implementation-defined value */
 #define PSA_CRYPTO_API_VERSION_MAJOR 1
-#define PSA_CRYPTO_API_VERSION_MINOR 3
+#define PSA_CRYPTO_API_VERSION_MINOR 4
 #define PSA_CUSTOM_KEY_PARAMETERS_INIT { 0 }
 #define PSA_DH_FAMILY_RFC7919 ((psa_dh_family_t) 0x03)
 #define PSA_ECC_FAMILY_BRAINPOOL_P_R1 ((psa_ecc_family_t) 0x30)
@@ -460,6 +460,10 @@ psa_status_t psa_asymmetric_encrypt(psa_key_id_t key,
                                     uint8_t * output,
                                     size_t output_size,
                                     size_t * output_length);
+psa_status_t psa_attach_key(const psa_key_attributes_t * attributes,
+                            const uint8_t * label,
+                            size_t label_length,
+                            psa_key_id_t * key);
 psa_status_t psa_cipher_abort(psa_cipher_operation_t * operation);
 psa_status_t psa_cipher_decrypt(psa_key_id_t key,
                                 psa_algorithm_t alg,

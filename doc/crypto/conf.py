@@ -27,7 +27,7 @@ doc_info = {
     'quality': 'REL',
     # Arm document issue number (within that version and quality status)
     # Marked as open issue if not provided
-    'issue_no': 1,
+    'issue_no': 0,
     # Identifies the sequence number of a release candidate of the same issue
     # default to None
     'release_candidate': 0,

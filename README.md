@@ -59,7 +59,7 @@ Extension specifications introduce new functionality that is not yet stable enou
 API | Extension | Published | Document source | Reference headers | Dashboard
 -|-|-|-|-|-
 Crypto API | PAKE | [*Integrated in 1.3.0*][crypto-specs] | *n/a* | *n/a* | *n/a*
-Crypto API | PQC | [1.3 Beta-1][crypto-specs] |  [doc/ext-pqc/] | [headers/crypto/1.3/]  | [Project board][crypto-dash]
+Crypto API | PQC | [1.3 Beta-2][crypto-specs] |  [doc/ext-pqc/] | [headers/crypto/1.3/]  | [Project board][crypto-dash]
 
 [doc/ext-pqc/]:        doc/ext-pqc
 
