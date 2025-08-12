@@ -62,7 +62,7 @@ XMSS and |XMSS^MT| keys
 
             The current proposed format is based on the expected outcome of that process.
 
-        The data format for import or export of the public key is the encoded ``xmss_public_key`` structure, defined in :rfc:`8391#B.3`.
+        In calls to :code:`psa_import_key()`, :code:`psa_export_key()`, and :code:`psa_export_public_key()`, the public-key data format is the encoded ``xmss_public_key`` structure, defined in :rfc:`8391#B.3`.
 
 .. macro:: PSA_KEY_TYPE_XMSS_MT_PUBLIC_KEY
     :definition: ((psa_key_type_t)0x400D)
@@ -95,7 +95,7 @@ XMSS and |XMSS^MT| keys
 
             The current proposed format is based on the expected outcome of that process.
 
-        The data format for import or export of the public key is the encoded ``xmssmt_public_key`` structure, defined in :rfc:`8391#C.3`.
+        In calls to :code:`psa_import_key()`, :code:`psa_export_key()`, and :code:`psa_export_public_key()`, the public-key data format is the encoded ``xmssmt_public_key`` structure, defined in :rfc:`8391#C.3`.
 
 
 .. _xmss-algorithms:

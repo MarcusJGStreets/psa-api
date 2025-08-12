@@ -17,7 +17,7 @@ Changes between *1.3.1* and *1.4.0*
 Changes to the API
 ~~~~~~~~~~~~~~~~~~
 
-*   TBD
+*   Added `psa_attach_key()` to register existing key material as a volatile key within the implementation.
 
 Clarifications and fixes
 ~~~~~~~~~~~~~~~~~~~~~~~~

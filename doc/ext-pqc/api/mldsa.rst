@@ -53,7 +53,7 @@ The |API| supports Module Lattice-based digital signatures (ML-DSA), as defined 
 
         An ML-DSA key pair is the :math:`(pk,sk)` pair of public key and secret key, which are generated from a secret 32-byte seed, :math:`\xi`. See `[FIPS204]` §5.1.
 
-        The data format for import and export of the key pair is the 32-byte seed :math:`\xi`.
+        In calls to :code:`psa_import_key()` and :code:`psa_export_key()`, the key-pair data format is the 32-byte seed :math:`\xi`.
 
         .. rationale::
 
@@ -84,12 +84,12 @@ The |API| supports Module Lattice-based digital signatures (ML-DSA), as defined 
 
     .. subsection:: Key derivation
 
-        A call to :code:`psa_key_derivation_output_key()` will draw 32 bytes of output and use these as the 32-byte ML-DSA key-pair seed, :math:`xi`.
+        A call to :code:`psa_key_derivation_output_key()` will draw 32 bytes of output and use these as the 32-byte ML-DSA key-pair seed, :math:`\xi`.
         The key pair :math:`(pk, sk)` is generated from the seed as defined by ``ML-DSA.KeyGen_internal()`` in `[FIPS204]` §6.1.
 
         .. admonition:: Implementation note
 
-            It is :scterm:`implementation defined` whether the seed :math:`xi` is expanded to :math:`(pk, sk)` at the point of derivation, or only just before the key is used.
+            It is :scterm:`implementation defined` whether the seed :math:`\xi` is expanded to :math:`(pk, sk)` at the point of derivation, or only just before the key is used.
 
 .. macro:: PSA_KEY_TYPE_ML_DSA_PUBLIC_KEY
     :definition: ((psa_key_type_t)0x4002)
@@ -121,6 +121,8 @@ The |API| supports Module Lattice-based digital signatures (ML-DSA), as defined 
             The current proposed format is based on the expected outcome of that process.
 
         An ML-DSA public key is the :math:`pk` output of ``ML-DSA.KeyGen()``, defined in `[FIPS204]` §5.1.
+
+        In calls to :code:`psa_import_key()`, :code:`psa_export_key()`, and :code:`psa_export_public_key()`, the public-key data format is :math:`pk`.
 
         The size of the public key depends on the ML-DSA parameter set as follows:
 
