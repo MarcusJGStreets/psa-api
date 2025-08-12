@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: CC-BY-SA-4.0 AND LicenseRef-Patent-license
 
 .. header:: psa/crypto
-    :seq: 26
+    :seq: 260
 
 .. _sign:
 
@@ -56,8 +56,7 @@ There are three categories of asymmetric signature algorithm in the |API|:
     The following algorithms are in this category:
 
     | `PSA_ALG_PURE_EDDSA`
-      `PSA_ALG_ED25519CTX`
-      `PSA_ALG_ED448CTX`
+      `PSA_ALG_EDDSA_CTX`
 
 *   Specialized signature algorithms, that use part of a standard signature algorithm within a specific protocol. It is recommended that these algorithms are only used for that purpose, with inputs as specified by the higher-level protocol. See the individual algorithm descriptions for details on their usage.
 
@@ -80,15 +79,15 @@ The |API| provides several functions for calculating and verifying signatures:
 
     These functions can also be used on the specialized signature algorithms, with a hash or encoded-hash as input. See also `PSA_ALG_IS_SIGN_HASH()`.
 
-    Many modern signature algorithms have been designed to also accept a context to provide domain separation. Release 1.4.0 introduced four new functions that accept contexts: `psa_sign_message_with_context()` `psa_sign_hash_with_context()`, `psa_verify_message_with_context()` `psa_verify_hash_with_context()`.
+*   Many modern signature algorithms have been designed to also accept a context to provide domain separation. Release 1.4 introduced four new functions that accept contexts: `psa_sign_message_with_context()` `psa_sign_hash_with_context()`, `psa_verify_message_with_context()` `psa_verify_hash_with_context()`.
 
-    Except for the Edwards 25519 curve, if called with a zero-length context, these functions produce the same signature as the original function.
+    If called with a zero-length context, these functions produce the same signature as the original function.
 
     It is an error to provide a non-zero-length context with an algorithm that does not accept contexts.
     
     Code written to be cryptographically agile can use the new functions, provided it guards against providing a non-zero-length context with an algorithm that does not support  them.
     
-    There is a support macro ``PSA_ALG_SUPPORTS_CONTEXT`` that can be used to determine if the implementation of an algorithm supports the use of non-zero-length contexts.  
+    The ``PSA_ALG_SUPPORTS_CONTEXT`` macro can be used to determine if the implementation of an algorithm supports the use of non-zero-length contexts.  
     
 See :secref:`single-part-signature`.
 
@@ -191,7 +190,7 @@ RSA signature algorithms
         The RSA PSS message signature scheme, with hashing.
         This variant permits any salt length for signature verification.
 
-        .. versionadded :: 1.1
+        .. versionadded:: 1.1
 
     .. param:: hash_alg
         A hash algorithm: a value of type `psa_algorithm_t` such that :code:`PSA_ALG_IS_HASH(hash_alg)` is true. This includes `PSA_ALG_ANY_HASH` when specifying the algorithm in a key policy.
@@ -475,9 +474,9 @@ EdDSA signature algorithms
 
     PureEdDSA requires an elliptic curve key on a twisted Edwards curve. The following curves are supported:
 
-    *   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.1.6`. This does not accept a context, so it cannot be used with functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`.  
+    *   Edwards25519: the Ed25519 algorithm is computed. The output signature is a 64-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.1.6`.
 
-    *   Edwards448: Unless you use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`, the Ed448 algorithm is computed with a zero-length context. The output signature is a 114-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.2.6`.
+    *   Edwards448: the Ed448 algorithm is computed. The output signature is a 114-byte string: the concatenation of :math:`R` and :math:`S` as defined by :RFC:`8032#5.2.6`.
 
     .. note::
         To sign or verify the pre-computed hash of a message using EdDSA, the HashEdDSA algorithms (`PSA_ALG_ED25519PH` and `PSA_ALG_ED448PH`) can be used.
@@ -487,30 +486,30 @@ EdDSA signature algorithms
     .. note::
         Signatures on the Edwards 25519 curve were originally defined without domain separation. Later the Ed25519ctx and Ed25519ph variants were defined, both of which accept a context. However, a signature made with Ed25519ctx and an zero-length context is distinct from a signature made using the Ed25519.
         
-        As PureEdDSA does not support contexts, using PureEdDSA with a non-zero-length context on the 25519 curve is an error. 
+        As `PSA_ALG_PURE_EDDSA` does not support contexts, using PureEdDSA with a non-zero-length context is an error. 
 
     .. subsection:: Compatible key types
 
         | :code:`PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)`
         | :code:`PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS)` (signature verification only)
 
-.. macro:: PSA_ALG_ED25519CTX
+.. macro:: PSA_ALG_EDDSA_CTX
     :definition: ((psa_algorithm_t) 0x06000A00)
 
     .. summary::
-        Edwards-curve digital signature algorithm with context, using the Edwards25519 curve.
+        Edwards-curve digital signature algorithm with context, using the Edwards25519 or Edwards448 curves.
 
         .. versionadded:: 1.4
         
-    This signature algorithm can be used with both the message and message with context  signature functions.
+    This signature algorithm can be used with both the message and message with context signature functions. They cannot be used to sign hashes. 
 
-    This calculates the Ed25519ctx algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 curve key. The `psa_sign_message()` and `psa_verify_message()` functions use an zero-length context when computing or verifying signatures. 
+    This calculates the algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 or Edwards448 curve key. The `psa_sign_message()` and `psa_verify_message()` functions use an zero-length context when computing or verifying signatures. 
     
     To use a non-zero-length context, use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`
 
     .. admonition:: Implementation note
 
-       Even if you supply an zero-length context, signatures created with Ed25519ctx are distinct from those created with PureEdDSA.
+       Even if you supply an zero-length context, signatures created with Edwards25519 keys and PSA_ALG_EDDSA_CTX are distinct from those created with the same key PureEdDSA.
 
     .. subsection:: Usage
 
@@ -524,42 +523,9 @@ EdDSA signature algorithms
 
         | :code:`PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)`
         | :code:`PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS)` (signature verification only)
-
-
-.. macro:: PSA_ALG_ED448CTX
-    :definition: ((psa_algorithm_t) 0x0600090B)
-
-    .. summary::
-        Edwards-curve digital signature algorithm with context, using the Edwards448 curve.
-
-        .. versionadded:: 1.4
-        
-    This signature algorithm can be used with both the message and message with context  signature functions.
-
-    This calculates the Ed448ctx algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards448 curve key. The `psa_sign_message()` and `psa_verify_message()` functions use an zero-length context when computing or verifying signatures. 
-    
-    To use a non-zero-length context, use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_message_with_context()`
-
-    .. admonition:: Implementation note
-
-       Even if you supply an zero-length context, signatures created with Ed448ctx are distinct from those created with PureEdDSA.
-
-    .. subsection:: Usage
-
-        This is a message signing algorithm. To calculate a signature, use one of the following approaches:
-
-        *   Call `psa_sign_message()` or `psa_sign_message_with_context()` with the message.
-
-        Verifying a signature is similar, using, for example, `psa_verify_message()` or `psa_verify_message_with_context()` instead of the signature function.
-
-    .. subsection:: Compatible key types
-
-        | :code:`PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS)`
-        | :code:`PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_TWISTED_EDWARDS)` (signature verification only)
-
 
 .. macro:: PSA_ALG_ED25519PH
-    :definition: ((psa_algorithm_t) 0x0600090)
+    :definition: ((psa_algorithm_t) 0x0600090B)
 
     .. summary::
         Edwards-curve digital signature algorithm with pre-hashing (HashEdDSA), using the Edwards25519 curve.
@@ -570,11 +536,11 @@ EdDSA signature algorithms
 
     This calculates the Ed25519ph algorithm as specified in :RFC-title:`8032#5.1`, and requires an Edwards25519 curve key. The default signature functions use an zero-length context when computing or verifying signatures.
     
-    To use a non-zero-length context, use the signature functions that accept a context parameter, such as :code:`psa_sign_message_with_context()` and :code:`psa_verify_hash_with_context()`
+    To use a non-zero-length context, use the signature functions that accept a context parameter, such as :code:`psa_sign_hash_with_context()` and :code:`psa_verify_hash_with_context()`
 
     The pre-hash function is SHA-512, see `PSA_ALG_SHA_512`.
 
-    When used with `psa_sign_hash()` or `psa_verify_hash()`, the provided ``hash`` parameter is the SHA-512 message digest.
+    When used with any of these functions, the provided ``hash`` parameter is the SHA-512 message digest.
 
     .. subsection:: Usage
 
@@ -609,7 +575,7 @@ EdDSA signature algorithms
     
     The pre-hash function is the first 64 bytes of the output from SHAKE256, see `PSA_ALG_SHAKE256_512`.
 
-    When used with `psa_sign_hash()` or `psa_verify_hash()`, the provided ``hash`` parameter is the truncated SHAKE256 message digest.
+    When used these functions, the provided ``hash`` parameter is the truncated SHAKE256 message digest.
 
     The default signature functions use the empty string as the context, that is they use  a zero-length context. To use a non-zero-length context, use one of the functions that support supplied contexts, for example `psa_sign_hash_with_context()` or `psa_verify_message_with_context()`.
      
